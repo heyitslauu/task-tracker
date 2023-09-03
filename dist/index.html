@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="./pen.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/66e98214bd.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Task Tracker</title>
+</head>
+<body>
+    <header>
+        <div><i class="fa-solid fa-bars controls-icons"></i></div>
+    </header>
+    <div class="container">
+        <div class="flex-row">
+            <div class="sidebar flex-col">
+                <div>
+                    <h2 class="sidebar-header">Home</h2>
+                    <div class="controls flex-col">
+                        <div class="flex">
+                            <i class="fa-solid fa-pen controls-icons"></i>
+                            <h5>All Tasks</h5>
+                        </div>
+                        <div class="flex">
+                            <i class="fa-regular fa-calendar controls-icons"></i>
+                            <h5>Today</h5>
+                        </div>
+                        <div class="flex">
+                            <i class="fa-solid fa-calendar-week controls-icons"></i>
+                            <h5>This Week</h5>
+                        </div>
+                        <div class="flex">
+                            <i class="fa-solid fa-circle-exclamation controls-icons"></i>
+                            <h5>Important</h5>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="sidebar-header flex project-header">
+                        <div>Projects</div>
+                        <div><i class="fa-solid fa-plus"></i></div>
+                    </h2>
+                    <div class="controls flex-col">
+                        <div class="flex">
+                            <i class="fa-regular fa-folder"></i>
+                            <p>Project 1</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="main-content">
+                <button id="btn-add">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                <main class="content flex-col">
+                    <div class="task">
+                        <input type="checkbox" id="horns" name="horns" />
+                        <p class="task-name">Task 1</p>
+
+                        <p class="task-details">Details</p>
+                        <i class="fa-regular fa-pen-to-square task-item__controls"></i>
+                        <i class="fa-solid fa-trash-can task-item__controls"></i>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
