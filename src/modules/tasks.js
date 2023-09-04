@@ -1,4 +1,4 @@
-class Tasks {
+export class Tasks {
     constructor() {
         this.tasks = [
             {
@@ -100,22 +100,3 @@ class Tasks {
         return this.tasks;
     }
 }
-
-class Project {
-    constructor(name) {
-        this.name = name;
-        this.projects = [];
-    }
-
-    addProject(formObject) {
-        this.projects.push(formObject)
-    }
-
-
-    getProjects() {
-        return this.projects;
-    }
-    
-}
-
-export { Tasks, Project };
