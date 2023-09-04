@@ -1,8 +1,10 @@
 import DomModule from "./modules/dom";
-import { Tasks, Project } from "./modules/tasks";
+import { Tasks } from "./modules/tasks";
+import { Project } from "./modules/projects";
 
 document.addEventListener('DOMContentLoaded', () => {
     const taskManager = new Tasks();
+    const projectManager = new Project();
     DomModule.renderTasks(taskManager.getTasks());
-    DomModule.renderProjects();
+    DomModule.renderProjects(projectManager.getProjects());
 })
