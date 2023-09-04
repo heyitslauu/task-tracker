@@ -13,24 +13,27 @@ const DomModule = (() => {
     const btnClose = document.querySelector('.btn-close');
     const projContainer = document.querySelector('.projects-container');
 
+    const sideBarNav = document.querySelectorAll('.side-items');
+
     const taskManager = new Tasks();
     const taskArray = taskManager.getTasks();
     
     const projects = new Project();
     const projectsArray = projects.getProjects();
 
-    // Function to Render Tasks
-    function renderTasks() {
+    // Render tasks based on which array
+    function renderTasks(arr) {
         let text = ''
         taskContent.innerHTML = '';
-        taskArray.forEach((task, index) => {
+        
+        arr.forEach((task, index) => {
             text += `<div class="task">
-            <input type="checkbox" id="horns" name="horns" />
+
             <p class="task-name">${task.title}</p>
 
             <p class="task-details task-detail" data-index="${index}">Details</p>
             <i class="fa-regular fa-pen-to-square task-item__controls task-edit" data-index="${index}"></i>
-            <i class="fa-solid fa-trash-can task-item__controls task-delete" data-index="${index}"></i>
+            <i class="fa-solid fa-trash-can task-item__controls task-delete" data-id="${task.id}"></i>
         </div>`
         })
 
@@ -42,29 +45,28 @@ const DomModule = (() => {
         // Attach click-events on all details button
         taskDetails.forEach(task => {
             task.addEventListener('click', (e) => {
-                const index = e.target.getAttribute('data-index'); // Get the index from data-index attribute
-                showDetails(index);
+                const index = e.target.getAttribute('data-index'); 
+                //Pass the current array to find the index in it
+                showDetails(arr, index);
                 detailsDialog.classList.add('active')
             });
         })
         // Attach click-events on all delete button
         taskDelete.forEach((task) => {
             task.addEventListener('click', (e) => {
-                const index = e.target.getAttribute('data-index'); // Get the index from data-index attribute
-                taskManager.removeTask(index)
+                const index = e.target.getAttribute('data-id');
+                taskManager.removeTask(arr, index);
 
-                // Call render task to show changes every deletion
-                renderTasks();
+                renderTasks(arr);
             })
         })
     }   
 
-    // Show details dialog
-    function showDetails(index) { 
+    function showDetails(arr, index) { 
         detailsInfo.innerHTML = ''
         const details = document.createElement('div');
 
-        let taskInfo = taskManager.showTask(index);
+        let taskInfo = taskManager.showTask(arr, index);
 
         details.innerHTML = `<div class="flex project-header">
                 <h3>${taskInfo.title}</h3>
@@ -103,7 +105,20 @@ const DomModule = (() => {
         })
     }
 
+    // Filter by nav choice (All or Filtered)
+    sideBarNav.forEach((nav) => {
+        nav.addEventListener('click', (e) => {
+            sideBarNav.forEach((item) => {
+                item.classList.remove('active');
+            });
     
+            const routeItem = e.target.getAttribute('data-title');
+            let taskItems = taskManager.filterTask(routeItem);
+            nav.classList.toggle('active')
+            renderTasks(taskItems)
+        })
+    })
+
     btnAdd.addEventListener('click', () => {
         formDialog.classList.toggle('active')
     })
@@ -120,6 +135,7 @@ const DomModule = (() => {
             const projectSubmit = document.createElement('button');
             projectInput.type = 'text';
             projectInput.style.width = '100%'
+            projectInput.required = true;
             projectInput.setAttribute('id', 'project_name')
             projectInput.placeholder = "New project"
             projectSubmit.type = 'button';
@@ -137,11 +153,18 @@ const DomModule = (() => {
             //Add new Project
             btnNewProject.addEventListener('click', () => {
                 const projectName = document.getElementById('project_name').value
-                projects.addProject(projectName)
-                
 
-                btnProject.classList.remove('active')
-                renderProjects();
+                // Temp solution for empty project name
+                if(projectName) {
+                    projects.addProject(projectName)
+                    btnProject.classList.remove('active')
+                    renderProjects();
+                }
+                else {
+                    alert("Project name should not be empty")
+                }
+                
+                
             })
         }
 
@@ -171,7 +194,7 @@ const DomModule = (() => {
         document.getElementById('dueDate').value = '';
         document.getElementById('priority').value = '1';
         
-        renderTasks();
+        renderTasks(taskArray);
 
         //Close the form
         formDialog.classList.toggle('active')
