@@ -3,27 +3,38 @@ import { Project } from './projects';
 
 const DomModule = (() => {
 
-    //TODO:  Group the element selectors
+    //TODO: Group the element selectors
+    //TODO: 'active' class on sidebar navs
+    //TODO: LocalStorage implementation
+    //TODO: Mark as Complete implementation
 
     //Buttons
     const btnAdd = document.getElementById('btn-add');
     const btnProject = document.getElementById('btn-project')
     const btnClose = document.querySelector('.btn-close');
     const projectClose = document.getElementById('btnProj-close');
+    const drawerToggler = document.getElementById('drawer-toggler')
+
+    const btnCancel = document.querySelector('.btn-cancel ');
+    const btnProjCancel = document.querySelector('.btnProj-cancel')
+
 
     //Dialogs
     const formDialog = document.getElementById('formDialog')
     const projectDialog = document.getElementById('projectDialog')
     const detailsDialog =  document.getElementById('detailsDialog');
+    const editDialog =  document.getElementById('editDialog');
+    const projectEditDialog =  document.getElementById('projecEditDialog');
 
     //Containers
     const taskContent = document.getElementById('task-content')
     const projContainer = document.querySelector('.projects-container');
     const detailsInfo = document.getElementById('details-info')
-    
+    const sideBar = document.querySelector('.sidebar');
     //Form
     const taskInput = document.getElementById('task-input');
-    
+    const editForm = document.getElementById('edit-input')
+    const projectEditForm = document.getElementById('projectEdit-input');
     //Side items nav 
     const sideBarNav = document.querySelectorAll('.side-items');
 
@@ -32,8 +43,10 @@ const DomModule = (() => {
     
     const projects = new Project();
 
-    // Default active project
+    // Default pointers for ids
     let activeProjectId = ''
+    let editTaskId;
+    let editProjectTaskId;
 
     // Render tasks based on which array
     function renderTasks(arr) {
@@ -46,8 +59,8 @@ const DomModule = (() => {
             <p class="task-name">${task.title}</p>
 
             <p class="task-details task-detail" data-index="${index}">Details</p>
-            <i class="fa-regular fa-pen-to-square task-item__controls task-edit" data-index="${index}"></i>
-            <i class="fa-solid fa-trash-can task-item__controls task-delete" data-id="${task.id}"></i>
+            <i class="fa-regular fa-pen-to-square task-item__controls task-edit button-items" data-id="${task.id}"></i>
+            <i class="fa-solid fa-trash-can task-item__controls task-delete button-items" data-id="${task.id}"></i>
         </div>`
         })
 
@@ -55,6 +68,7 @@ const DomModule = (() => {
 
         const taskDetails = document.querySelectorAll('.task-detail');
         const taskDelete = document.querySelectorAll('.task-delete');
+        const taskEdit = document.querySelectorAll('.task-edit');
         
         // Attach click-events on all details button
         taskDetails.forEach(task => {
@@ -75,8 +89,27 @@ const DomModule = (() => {
                 renderTasks(arr);
             })
         })
+        taskEdit.forEach((task) =>  {
+            task.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                const taskToEdit = taskManager.editTask(id);
+            
+                editTaskId = taskToEdit.id
 
-        //TODO: Edit button
+                document.getElementById('edit-title').value = taskToEdit.title;
+                document.getElementById('edit-details').value = taskToEdit.details;
+                document.getElementById('edit-dueDate').value = taskToEdit.dueDate;
+                document.getElementById('edit-priority').value = taskToEdit.priorityLevel;
+                
+                editDialog.classList.add('active')
+            
+            })
+        })
+
+        btnCancel.addEventListener('click', () => {
+            editDialog.classList.remove('active')
+        })
+        
     }   
 
     function showDetails(arr, index) { 
@@ -106,9 +139,10 @@ const DomModule = (() => {
         projContainer.innerHTML = '';
 
         arr.forEach((project) => {
+            const projectName = project.name.length > 17 ? project.name.substring(0, 17) + '...' : project.name;
             text += `<div class="flex project-item" data-id="${project.id}">
             <i class="fa-regular fa-folder"></i>
-            <p>${project.name}</p>
+            <p>${projectName}</p>
         </div>`
         })
 
@@ -117,13 +151,19 @@ const DomModule = (() => {
         const projectItems = document.querySelectorAll('.project-item');
         projectItems.forEach((item) => {
             item.addEventListener('click', (e) => {
-                const id = e.target.getAttribute('data-id');
-              
+                projectItems.forEach((x) => {
+                    x.classList.remove('active');
+                });
+                const id = e.currentTarget.getAttribute('data-id');
+
                 let projectItem = projects.showProject(id)
                 activeProjectId = projectItem.id;
+                item.classList.toggle('active')
                 renderProjectContent(projectItem);
             })
         })
+
+        
     }
 
     function renderProjectContent(projectItem) {
@@ -131,14 +171,13 @@ const DomModule = (() => {
         let projectTasks = projectItem.tasks;
 
         taskContent.innerHTML = ''
-
         let text = `<div class="project">
             <div class="flex project-header">
                 <div class="flex">
                     <i class="fa-regular fa-folder"></i>
-                    <h2>${projectItem.name}</h2>
+                    <h2>${projectTaskName}</h2>
                 </div>
-                <button class="project-task btn-create" id="project-task"> Add Task</button>
+                <button class="project-task btn-create button-items" id="project-task"> Add Task</button>
             </div>
         </div>`
 
@@ -148,9 +187,9 @@ const DomModule = (() => {
             const divItem = document.createElement('div');
             divItem.innerHTML = `<div class="task">
                 <p class="task-name">${task.title}</p>
-                <p class="task-details task-detail" data-index="${index}">Details</p>
-                <i class="fa-regular fa-pen-to-square task-item__controls task-edit" data-index="${index}"></i>
-                <i class="fa-solid fa-trash-can task-item__controls task-delete" data-id="${task.id}"></i>
+                <p class="task-details project-detail" data-id="${task.id}">Details</p>
+                <i class="fa-regular fa-pen-to-square task-item__controls project-edit button-items" data-id="${task.id}"></i>
+                <i class="fa-solid fa-trash-can task-item__controls project-delete button-items" data-id="${task.id}"></i>
             </div>`
             taskContent.appendChild(divItem)
         })
@@ -163,8 +202,67 @@ const DomModule = (() => {
             projectDialog.classList.toggle('active')
         })
 
+        const projectDetails = document.querySelectorAll('.project-detail');
+        const projectDelete = document.querySelectorAll('.project-delete');
+        const projectEdit = document.querySelectorAll('.project-edit');
 
-        //TODO: Show details, Edit, Delete button
+        projectDetails.forEach((detail) => {
+            detail.addEventListener('click', (e) =>  {
+                const id = e.target.getAttribute('data-id');
+
+
+                let projectTaskContent = projects.showTaskProject(activeProjectId, id)
+
+                detailsInfo.innerHTML = ''
+                const details = document.createElement('div');
+
+                details.innerHTML = `<div class="flex project-header">
+                        <h3>${projectTaskContent.title}</h3>
+                        <div>${projectTaskContent.dueDate}</div>
+                    </div>
+                    <div>
+                        ${projectTaskContent.details}
+                    </div>
+                `
+                detailsInfo.append(details)
+                detailsDialog.classList.add('active')
+                detailsInfo.addEventListener('click', () => {
+                    detailsDialog.classList.remove('active')
+                })
+            })
+        })
+
+        projectDelete.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+
+                let returnedArr = projects.deleteTaskProject(activeProjectId, id)
+                renderProjectContent(returnedArr)
+
+
+            })
+        });
+    
+        projectEdit.forEach((editBtn) => {
+            editBtn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id')
+                
+                let projectTaskContent = projects.showTaskProject(activeProjectId, id)
+                
+                editProjectTaskId  = projectTaskContent.id;
+
+                document.getElementById('projectEdit-title').value = projectTaskContent.title;
+                document.getElementById('projectEdit-details').value = projectTaskContent.details;
+                document.getElementById('projectEdit-dueDate').value = projectTaskContent.dueDate;
+                document.getElementById('projectEdit-priority').value = projectTaskContent.priorityLevel;
+                
+                projectEditDialog.classList.add('active')
+            })
+        })
+
+        btnProjCancel.addEventListener('click', () => {
+            projectEditDialog.classList.remove('active')
+        })
         
     }
 
@@ -209,7 +307,8 @@ const DomModule = (() => {
                 item.classList.remove('active');
             });
     
-            const routeItem = e.target.getAttribute('data-title');
+            
+            const routeItem = e.currentTarget.getAttribute('data-title');
             let taskItems = taskManager.filterTask(routeItem);
             nav.classList.toggle('active')
             renderTasks(taskItems)
@@ -240,7 +339,7 @@ const DomModule = (() => {
 
             text += `<form autocomplete="off" class="flex" id="form-project">
                 <input type="text" name="" id="project_name" placeholder="New Project" required>
-                <button type="submit" class="btn-create">Add</button>
+                <button type="submit" class="btn-create button-items">Add</button>
             </form>`
 
             newProjectDiv.innerHTML = text;
@@ -300,6 +399,50 @@ const DomModule = (() => {
         formDialog.classList.toggle('active')
     })
 
+    editForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById('edit-title').value
+        const details = document.getElementById('edit-details').value
+        const dueDate= document.getElementById('edit-dueDate').value
+        const priority = document.getElementById('edit-priority').value
+
+        const formObject = {
+            title,
+            details,
+            dueDate,
+            priority,
+        };
+
+        let returnedArr = taskManager.updateTask(editTaskId, formObject)
+        renderTasks(returnedArr)
+        editDialog.classList.remove('active')
+    })
+
+    projectEditForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById('projectEdit-title').value
+        const details = document.getElementById('projectEdit-details').value
+        const dueDate= document.getElementById('projectEdit-dueDate').value
+        const priority = document.getElementById('projectEdit-priority').value
+
+        const formObject = {
+            title,
+            details,
+            dueDate,
+            priority,
+        };
+
+        let returnedArr = projects.editTaskProject(activeProjectId, editProjectTaskId, formObject)
+
+        renderProjectContent(returnedArr)
+        projectEditDialog.classList.remove('active')
+    })
+
+    drawerToggler.addEventListener('click', () => {
+        sideBar.classList.toggle('active')
+    })
 
     return { renderTasks, renderProjects }
 })();
