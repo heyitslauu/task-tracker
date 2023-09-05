@@ -1,12 +1,15 @@
 import { Tasks } from './tasks';
 import { Project } from './projects';
+import { LocalStorage } from './localStorage';
+import { tasksInit, projectsInit } from './init';
 
 const DomModule = (() => {
-
-    //TODO: Group the element selectors
-    //TODO: 'active' class on sidebar navs
-    //TODO: LocalStorage implementation
+    
     //TODO: Mark as Complete implementation
+    //TODO: Priority Classes
+    //TODO: Delete Project 
+
+    //FIXME: Refactor localStorage to follow SOLID 
 
     //Buttons
     const btnAdd = document.getElementById('btn-add');
@@ -18,7 +21,7 @@ const DomModule = (() => {
     const btnCancel = document.querySelector('.btn-cancel ');
     const btnProjCancel = document.querySelector('.btnProj-cancel')
 
-
+    const localStorage = new LocalStorage();
     //Dialogs
     const formDialog = document.getElementById('formDialog')
     const projectDialog = document.getElementById('projectDialog')
@@ -39,9 +42,10 @@ const DomModule = (() => {
     const sideBarNav = document.querySelectorAll('.side-items');
 
     const taskManager = new Tasks();
-    const taskArray = taskManager.getTasks();
-    
     const projects = new Project();
+
+    localStorage.setInitialStorage('tasks', tasksInit)
+    localStorage.setInitialStorage('projects', projectsInit)
 
     // Default pointers for ids
     let activeProjectId = ''
@@ -84,9 +88,10 @@ const DomModule = (() => {
         taskDelete.forEach((task) => {
             task.addEventListener('click', (e) => {
                 const index = e.target.getAttribute('data-id');
-                taskManager.removeTask(arr, index);
+                
+                let returnedArr = taskManager.removeTask(arr, index);
 
-                renderTasks(arr);
+                renderTasks(returnedArr);
             })
         })
         taskEdit.forEach((task) =>  {
@@ -151,14 +156,23 @@ const DomModule = (() => {
         const projectItems = document.querySelectorAll('.project-item');
         projectItems.forEach((item) => {
             item.addEventListener('click', (e) => {
+
+                sideBarNav.forEach((nav) => {
+                    nav.classList.remove('active');
+                });
+        
                 projectItems.forEach((x) => {
                     x.classList.remove('active');
                 });
+
                 const id = e.currentTarget.getAttribute('data-id');
 
                 let projectItem = projects.showProject(id)
+
                 activeProjectId = projectItem.id;
+
                 item.classList.toggle('active')
+                
                 renderProjectContent(projectItem);
             })
         })
@@ -254,7 +268,7 @@ const DomModule = (() => {
                 document.getElementById('projectEdit-title').value = projectTaskContent.title;
                 document.getElementById('projectEdit-details').value = projectTaskContent.details;
                 document.getElementById('projectEdit-dueDate').value = projectTaskContent.dueDate;
-                document.getElementById('projectEdit-priority').value = projectTaskContent.priorityLevel;
+                document.getElementById('projectEdit-priority').value = projectTaskContent.priority;
                 
                 projectEditDialog.classList.add('active')
             })
@@ -303,13 +317,17 @@ const DomModule = (() => {
     // Filter by nav choice (All or Filtered)
     sideBarNav.forEach((nav) => {
         nav.addEventListener('click', (e) => {
+
+            const projectItems = document.querySelectorAll('.project-item');
+            projectItems.forEach((item) => {
+                item.classList.remove('active');
+            });
             sideBarNav.forEach((item) => {
                 item.classList.remove('active');
             });
-    
-            
             const routeItem = e.currentTarget.getAttribute('data-title');
             let taskItems = taskManager.filterTask(routeItem);
+
             nav.classList.toggle('active')
             renderTasks(taskItems)
         })
