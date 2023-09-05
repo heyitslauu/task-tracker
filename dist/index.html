@@ -13,15 +13,15 @@
 </head>
 <body>
     <header>
-        <div><i class="fa-solid fa-bars controls-icons"></i></div>
+        <i class="fa-solid fa-bars controls-icons " id="drawer-toggler"></i>
     </header>
     <div class="container">
         <div class="flex-row">
-            <div class="sidebar flex-col">
+            <div class="sidebar active flex-col">
                 <div>
                     <h2 class="sidebar-header">Home</h2>
                     <div class="controls flex-col">
-                        <!-- TODO: Refactor this, prolly change to button-->
+                        <!-- FIXED: Refactor this, prolly change to button-->
                         <div class="flex side-items" data-title="all">
                             <i class="fa-solid fa-pen controls-icons"></i>
                             <h5>All Tasks</h5>
@@ -42,11 +42,11 @@
                 </div>
                 <div>
                     <h2 class="sidebar-header flex project-header">
-                        <div>Folders</div>
-                        <div id="btn-project"><i class="fa-solid fa-plus"></i></div>
+                        <div>Projects</div>
+                        <div id="btn-project" class="button-items"><i class="fa-solid fa-plus"></i></div>
                     </h2>
                     
-                    <!-- TODO: Refactor this, prolly change to button-->
+                    <!-- FIXED: Refactor this, prolly change to button-->
                     <div class="controls flex-col projects-container"></div>
                     
                 </div>
@@ -84,8 +84,8 @@
                 <option value="3">Low</option>
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Create Task</button>
-            <button type="button" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            <button type="submit" class="btn-submit button-items">Create Task</button>
+            <button type="button" class="btn-close button-items"><i class="fa-solid fa-xmark"></i></button>
         </form>
     </div>
 
@@ -112,13 +112,69 @@
                     <option value="3">Low</option>
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Create Task</button>
-            <button type="button" class="btn-close" id="btnProj-close"><i class="fa-solid fa-xmark"></i></button>
+            <button type="submit" class="btn-submit button-items">Create Task</button>
+            <button type="button" class="btn-close button-items" id="btnProj-close"><i class="fa-solid fa-xmark"></i></button>
         </form>
     </div>
 
     <div id="detailsDialog">
         <div id="details-info"></div>
+    </div>
+
+    <div id="editDialog">
+        <form class="flex-col" id="edit-input" autocomplete="off">
+            <div class="flex-col">
+                <label for="edit-title">Title</label>
+                <input type="text" name="title" id="edit-title" placeholder="Delete Database"required>
+            </div>
+            <div class="flex-col">
+                <label for="edit-details">Details</label>
+                <textarea class="details" id="edit-details" placeholder="Drop all the unused databases"></textarea>
+            </div>
+            <div class="flex-col">
+                <label for="dedit-ueDate">Due Date</label>
+                <input type="date" name="dueDate" id="edit-dueDate" required>
+            </div>
+            <div class="flex">
+                <label for="edit-priority">Priority Level</label>
+
+                <select name="priority" id="edit-priority">
+                    <option value="1">High</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Low</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit button-items" id="edit-submit">Save Changes</button>
+            <button type="button" class="btn-cancel button-items">Cancel</button>
+        </form>
+    </div>
+
+    <div id="projecEditDialog">
+        <form class="flex-col" id="projectEdit-input" autocomplete="off">
+            <div class="flex-col">
+                <label for="edit-title">Title</label>
+                <input type="text" name="title" id="projectEdit-title" placeholder="Delete Database"required>
+            </div>
+            <div class="flex-col">
+                <label for="edit-details">Details</label>
+                <textarea class="details" id="projectEdit-details" placeholder="Drop all the unused databases"></textarea>
+            </div>
+            <div class="flex-col">
+                <label for="dedit-ueDate">Due Date</label>
+                <input type="date" name="dueDate" id="projectEdit-dueDate" required>
+            </div>
+            <div class="flex">
+                <label for="edit-priority">Priority Level</label>
+
+                <select name="priority" id="projectEdit-priority">
+                    <option value="1">High</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Low</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit button-items" id="edit-submit">Save Changes</button>
+            <button type="button" class="btnProj-cancel button-items">Cancel</button>
+        </form>
     </div>
     <script src="app.js"></script>
 </body>
