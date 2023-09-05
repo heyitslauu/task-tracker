@@ -46,6 +46,11 @@
   #root, #__next {
     isolation: isolate;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
   :root {
     --base-color: #f3f3f3;
     --shade-neutral: #cfcfcf;
@@ -65,6 +70,7 @@
   }
   .container {
       height: 100%;
+      position: relative;
   }
 
   .flex-row {
@@ -81,10 +87,20 @@
   .sidebar {
       background-color: var(--neutral-color);
       padding: 1em;
-      width: 350px;
+      width: 400px;
       font-size: 130%;
       gap: 2em;
+      height: 100%;
       color: var(--shade-full);
+      position: absolute;
+      left: -350px; /* Initially, the sidebar is hidden to the left */
+      transition: all 0.5s ; /* Add a transition for smooth animation */
+  }
+
+  .sidebar.active {
+    position: relative;
+ 
+    left: 0; 
   }
 
   .todo-controls {
@@ -100,7 +116,7 @@
   }
   
   #btn-add {
-    /* padding: .2em .4em; */
+    cursor: pointer;
     position: absolute;
     border-radius: 50%;
     right: 1em;
@@ -112,6 +128,19 @@
     border: none;
     background-color: var(--brand-color);
     color: var(--neutral-color)
+  }
+
+  .btn-cancel, .btnProj-cancel{
+    outline: none;
+    border: none;
+    padding: .5em 0;
+    background-color: var(--shade-full);
+    color: var(--neutral-color);
+    font-weight: 900;
+  }
+
+  .button-items {
+    cursor: pointer;
   }
 
   .sidebar-header {
@@ -141,6 +170,25 @@
     font-size: 130%;
     display: flex;
     align-items: center;
+    box-shadow: 2px 2px 1px var(--shade-neutral);
+    
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  #drawer-toggler {
+    cursor: pointer;
+  }
+
+  .task:hover {
+    box-shadow: 4px 4px 4px var(--shade-neutral);
+  }
+
+  #details-info {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  #details-info:hover {
+    box-shadow: 2px 2px 1px var(--brand-color);
   }
 
   .project-task {
@@ -174,12 +222,17 @@
     transition: all .5s;
   }
 
+  #task-content {
+    width: 100%;
+   /* max-width: 1400px; */
+  }
+
   .task-details:hover {
     background-color: var(--brand-color);
     color: var(--neutral-color)
   }
 
-  .side-items.active {
+  .side-items.active, .project-item.active{
     border-left: 4px solid var(--brand-color);
     background-color: var(--shade-neutral)
   }
@@ -187,7 +240,13 @@
     padding: .3em .8em;
     transition: all .5s;
   }
+  .side-items, .project-item {
+    cursor: pointer;
+  }
 
+  .side-items > *, .project-item  > * {
+    cursor: pointer;
+  }
   .controls div:hover {
     background-color: var(--base-color);
 
@@ -203,7 +262,7 @@
   #form-project {
     align-items: center;
   }
-  #formDialog, #detailsDialog, #projectDialog{
+  #formDialog, #detailsDialog, #projectDialog, #editDialog, #projecEditDialog{
     display: none;
     opacity: 0;
     position: absolute;
@@ -219,7 +278,7 @@
     color: var(--shade-full);
   }
 
-  #form-input, #details-info, #task-input{
+  #form-input, #details-info, #task-input, #edit-input, #projectEdit-input{
     width: 400px;
     border-radius: 10px;
     background-color: var(--neutral-color);
@@ -231,7 +290,7 @@
     translate: -50% -50%;
   }
 
-  #formDialog.active, #detailsDialog.active, #projectDialog.active{
+  #formDialog.active, #detailsDialog.active, #projectDialog.active, #editDialog.active, #projecEditDialog.active{
     /* opacity: 1; */
     display: block;
     z-index: 2;
@@ -240,7 +299,7 @@
 
   .details {
     width: 100%;
-    height: 100px;
+    height: 150px;
     resize: none;
   }
   .btn-close {
