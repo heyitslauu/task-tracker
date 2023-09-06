@@ -4,9 +4,7 @@ import { LocalStorage } from './localStorage';
 import { tasksInit, projectsInit } from './init';
 
 const DomModule = (() => {
-    
-    //TODO: Mark as Complete implementation
-    //TODO: Priority Classes
+
     //TODO: Delete Project 
 
     //FIXME: Refactor localStorage to follow SOLID 
@@ -44,8 +42,7 @@ const DomModule = (() => {
     const taskManager = new Tasks();
     const projects = new Project();
 
-    localStorage.setInitialStorage('tasks', tasksInit)
-    localStorage.setInitialStorage('projects', projectsInit)
+
 
     // Default pointers for ids
     let activeProjectId = ''
@@ -58,9 +55,9 @@ const DomModule = (() => {
         taskContent.innerHTML = '';
         
         arr.forEach((task, index) => {
-            text += `<div class="task">
-
-            <p class="task-name">${task.title}</p>
+            text += `<div class="task prio-${task.priorityLevel} ${task.done == true ? 'completed' : ''}">
+            <input type="checkbox" class="task-checkbox" data-index="${task.id}"} ${task.done == true? 'checked' : ''}>
+            <p class="task-name ${task.done == true ? 'done' : ''}">${task.title}</p>
 
             <p class="task-details task-detail" data-index="${index}">Details</p>
             <i class="fa-regular fa-pen-to-square task-item__controls task-edit button-items" data-id="${task.id}"></i>
@@ -73,6 +70,7 @@ const DomModule = (() => {
         const taskDetails = document.querySelectorAll('.task-detail');
         const taskDelete = document.querySelectorAll('.task-delete');
         const taskEdit = document.querySelectorAll('.task-edit');
+        const taskCheckBox = document.querySelectorAll('.task-checkbox');
         
         // Attach click-events on all details button
         taskDetails.forEach(task => {
@@ -108,6 +106,15 @@ const DomModule = (() => {
                 
                 editDialog.classList.add('active')
             
+            })
+        })
+
+        taskCheckBox.forEach((cbox) => {
+            cbox.style.cursor = 'pointer'
+            cbox.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-index')
+                let returnedArr = taskManager.markCompleted(id)
+                renderTasks(returnedArr)
             })
         })
 
@@ -159,20 +166,31 @@ const DomModule = (() => {
 
                 sideBarNav.forEach((nav) => {
                     nav.classList.remove('active');
+
+                    if (window.innerWidth <= 800) {
+                        // Close the sidebar
+                        sideBar.classList.remove('active');
+                    }
+
                 });
         
+                
                 projectItems.forEach((x) => {
                     x.classList.remove('active');
+
+                    if (window.innerWidth <= 800) {
+                        // Close the sidebar
+                        sideBar.classList.remove('active');
+                    }
                 });
 
                 const id = e.currentTarget.getAttribute('data-id');
 
                 let projectItem = projects.showProject(id)
-
                 activeProjectId = projectItem.id;
 
                 item.classList.toggle('active')
-                
+
                 renderProjectContent(projectItem);
             })
         })
@@ -191,7 +209,10 @@ const DomModule = (() => {
                     <i class="fa-regular fa-folder"></i>
                     <h2>${projectTaskName}</h2>
                 </div>
-                <button class="project-task btn-create button-items" id="project-task"> Add Task</button>
+                <div class="flex">
+                    <button class="project-task btn-create button-items" id="project-task"> Add Task</button>
+                    <button class="project-task btn-trash button-items" id="project-task"> <i class="fa-regular fa-trash-can"></i></button>
+                </div>
             </div>
         </div>`
 
@@ -199,7 +220,8 @@ const DomModule = (() => {
 
         projectTasks.forEach((task, index) => {
             const divItem = document.createElement('div');
-            divItem.innerHTML = `<div class="task">
+            divItem.innerHTML = `<div class="task prio-${task.priorityLevel} ${task.done == true ? 'completed' : ''}">
+                <input type="checkbox" class="project-checkbox" data-index="${task.id}"} ${task.done == true ? 'checked' : ''}>
                 <p class="task-name">${task.title}</p>
                 <p class="task-details project-detail" data-id="${task.id}">Details</p>
                 <i class="fa-regular fa-pen-to-square task-item__controls project-edit button-items" data-id="${task.id}"></i>
@@ -219,6 +241,7 @@ const DomModule = (() => {
         const projectDetails = document.querySelectorAll('.project-detail');
         const projectDelete = document.querySelectorAll('.project-delete');
         const projectEdit = document.querySelectorAll('.project-edit');
+        const projectCheckbox = document.querySelectorAll('.project-checkbox');
 
         projectDetails.forEach((detail) => {
             detail.addEventListener('click', (e) =>  {
@@ -268,7 +291,7 @@ const DomModule = (() => {
                 document.getElementById('projectEdit-title').value = projectTaskContent.title;
                 document.getElementById('projectEdit-details').value = projectTaskContent.details;
                 document.getElementById('projectEdit-dueDate').value = projectTaskContent.dueDate;
-                document.getElementById('projectEdit-priority').value = projectTaskContent.priority;
+                document.getElementById('projectEdit-priority').value = projectTaskContent.priorityLevel;
                 
                 projectEditDialog.classList.add('active')
             })
@@ -278,6 +301,13 @@ const DomModule = (() => {
             projectEditDialog.classList.remove('active')
         })
         
+        projectCheckbox.forEach((pbox) => {
+            pbox.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-index')
+                let returnedArr = projects.markCompleted(activeProjectId, id)
+                renderProjectContent(returnedArr)
+            })
+        })
     }
 
     taskInput.addEventListener('submit', (e) => {
@@ -287,13 +317,13 @@ const DomModule = (() => {
         const title = document.getElementById('proj-title').value;
         const details = document.getElementById('proj-details').value;
         const dueDate = document.getElementById('proj-dueDate').value;
-        const priority = document.getElementById('proj-priority').value;
+        const priority = Number(document.getElementById('proj-priority').value)
 
         const formObject = {
             title,
             details,
             dueDate,
-            priority,
+            priorityLevel: priority,
         };
 
         // Add task to specific project
@@ -317,13 +347,20 @@ const DomModule = (() => {
     // Filter by nav choice (All or Filtered)
     sideBarNav.forEach((nav) => {
         nav.addEventListener('click', (e) => {
-
             const projectItems = document.querySelectorAll('.project-item');
             projectItems.forEach((item) => {
                 item.classList.remove('active');
+                if (window.innerWidth <= 800) {
+                    // Close the sidebar
+                    sideBar.classList.remove('active');
+                }
             });
             sideBarNav.forEach((item) => {
                 item.classList.remove('active');
+                if (window.innerWidth <= 800) {
+                    // Close the sidebar
+                    sideBar.classList.remove('active');
+                }
             });
             const routeItem = e.currentTarget.getAttribute('data-title');
             let taskItems = taskManager.filterTask(routeItem);
@@ -411,7 +448,7 @@ const DomModule = (() => {
         document.getElementById('dueDate').value = '';
         document.getElementById('priority').value = '1';
         
-        renderTasks(taskArray);
+        renderTasks(taskManager.getTasks());
 
         //Close the form
         formDialog.classList.toggle('active')
@@ -462,7 +499,21 @@ const DomModule = (() => {
         sideBar.classList.toggle('active')
     })
 
-    return { renderTasks, renderProjects }
+    function initLocalStorage() {
+        //Set the taskInit to respective keys
+        localStorage.setInitialStorage('tasks', tasksInit)
+        localStorage.setInitialStorage('projects', projectsInit)
+
+        // set the initial keys to constructor array
+        taskManager.setTasks();
+        projects.setProjects();
+
+        // render newly updated task and projects
+        renderTasks(taskManager.getTasks())
+        renderProjects(projects.getProjects())
+    }
+
+    return { initLocalStorage }
 })();
 
 export default DomModule;

@@ -1,5 +1,3 @@
-// import { tasksInit, projectsInit } from "./init";
-
 export class LocalStorage {
     setStorageItem(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
