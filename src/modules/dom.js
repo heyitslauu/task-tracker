@@ -4,9 +4,6 @@ import { LocalStorage } from './localStorage';
 import { tasksInit, projectsInit } from './init';
 
 const DomModule = (() => {
-
-    //TODO: Delete Project 
-
     //FIXME: Refactor localStorage to follow SOLID 
 
     //Buttons
@@ -46,6 +43,7 @@ const DomModule = (() => {
 
     // Default pointers for ids
     let activeProjectId = ''
+    let activeTaskArray = ''
     let editTaskId;
     let editProjectTaskId;
 
@@ -87,7 +85,7 @@ const DomModule = (() => {
             task.addEventListener('click', (e) => {
                 const index = e.target.getAttribute('data-id');
                 
-                let returnedArr = taskManager.removeTask(arr, index);
+                let returnedArr = taskManager.removeTask(arr, index, activeTaskArray);
 
                 renderTasks(returnedArr);
             })
@@ -211,7 +209,7 @@ const DomModule = (() => {
                 </div>
                 <div class="flex">
                     <button class="project-task btn-create button-items" id="project-task"> Add Task</button>
-                    <button class="project-task btn-trash button-items" id="project-task"> <i class="fa-regular fa-trash-can"></i></button>
+                    <button class="project-task btn-trash button-items" id="folder-delete"> <i class="fa-regular fa-trash-can"></i></button>
                 </div>
             </div>
         </div>`
@@ -242,6 +240,12 @@ const DomModule = (() => {
         const projectDelete = document.querySelectorAll('.project-delete');
         const projectEdit = document.querySelectorAll('.project-edit');
         const projectCheckbox = document.querySelectorAll('.project-checkbox');
+
+        const folderDelete = document.getElementById('folder-delete');
+        const deleteDialog = document.getElementById('deleteProject');
+
+        const confirmDelete = document.getElementById('deleteYes');
+        const cancelDelete = document.getElementById('deleteNo');
 
         projectDetails.forEach((detail) => {
             detail.addEventListener('click', (e) =>  {
@@ -308,6 +312,22 @@ const DomModule = (() => {
                 renderProjectContent(returnedArr)
             })
         })
+        
+        folderDelete.addEventListener('click', () => {
+            deleteDialog.classList.toggle('active')
+        })
+
+        confirmDelete.addEventListener('click', () => {
+            let returnedArr = projects.deleteProjectFolder(activeProjectId)
+
+            renderProjects(returnedArr)
+            deleteDialog.classList.remove('active')
+            taskContent.innerHTML = ''
+        })
+
+        cancelDelete.addEventListener('click', () => {
+            deleteDialog.classList.remove('active')
+        })
     }
 
     taskInput.addEventListener('submit', (e) => {
@@ -363,6 +383,7 @@ const DomModule = (() => {
                 }
             });
             const routeItem = e.currentTarget.getAttribute('data-title');
+            activeTaskArray = routeItem;
             let taskItems = taskManager.filterTask(routeItem);
 
             nav.classList.toggle('active')
