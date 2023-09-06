@@ -82,6 +82,17 @@ export class Project {
         return this.projects[projectIndex];
     }
     
+    deleteProjectFolder(projectId) {
+        const projectIndex = this.projects.findIndex((project) => project.id == projectId)
+
+        if(projectIndex > -1) {
+            this.projects.splice(projectIndex, 1);
+        }
+
+        storage.setStorageItem('projects', this.getProjects())
+        return this.getProjects();
+    }
+
     getProjects() {
         return this.projects;
     }
