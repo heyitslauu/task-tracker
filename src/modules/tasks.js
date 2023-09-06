@@ -29,16 +29,29 @@ export class Tasks {
     }
     
     // Gets the index and removes from the array
-    removeTask(arr, id) {
-        const index = this.tasks.findIndex((task) => task.id == id);
+    removeTask(arr, id, category) {
+        const indexInTasks = this.tasks.findIndex((task) => task.id == id);
+        const indexInCurrentArr = arr.findIndex((task) => task.id == id);
     
-        // BUG: Return the array based on the active filter
-        const currentArrIndex = arr.findIndex((task) => task.id == id);
-        this.tasks.splice(index, 1)// Remove from tasks array
-
-        storage.setStorageItem('tasks', this.getTasks())
-        return this.getTasks();
-
+        if (indexInCurrentArr !== -1) {
+            // Remove from the current array passed (e.g., activeTaskArray)
+            arr.splice(indexInCurrentArr, 1);
+        }
+    
+        if (indexInTasks !== -1) {
+            // Make a copy of the tasks array before splicing
+            const tasksCopy = [...this.tasks];
+    
+            // Remove from the copied tasks array
+            tasksCopy.splice(indexInTasks, 1);
+    
+            // Update the original tasks array
+            this.tasks = tasksCopy;
+        }
+    
+        // Optionally update local storage if needed
+        storage.setStorageItem('tasks', this.getTasks());
+        return arr;
     }
 
     filterTask(category) {
