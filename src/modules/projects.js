@@ -24,6 +24,7 @@ export class Project {
     taskToProject(id, formObject) {
         const index = this.projects.findIndex((project) => project.id == id);
 
+        formObject.done = false
         formObject.id = this.nextId++;
 
         this.projects[index].tasks.push(formObject)
@@ -53,11 +54,21 @@ export class Project {
         this.projects[projectIndex].tasks[taskIndex].title = formObject.title;
         this.projects[projectIndex].tasks[taskIndex].details = formObject.details;
         this.projects[projectIndex].tasks[taskIndex].dueDate = formObject.dueDate;
-        this.projects[projectIndex].tasks[taskIndex].priority = formObject.priority;
+        this.projects[projectIndex].tasks[taskIndex].priorityLevel = formObject.priority;
        
         storage.setStorageItem('projects', this.getProjects())
         return this.projects[projectIndex];
 
+    }
+
+    markCompleted(projectId, taskId) {
+        const projectIndex = this.projects.findIndex((project) => project.id == projectId);
+        const taskIndex = this.projects[projectIndex].tasks.findIndex((task) => task.id == taskId)
+
+        this.projects[projectIndex].tasks[taskIndex].done = !this.projects[projectIndex].tasks[taskIndex].done; 
+
+        storage.setStorageItem('projects', this.getProjects())
+        return this.projects[projectIndex];
     }
 
     deleteTaskProject(projectId, taskId) {
@@ -73,6 +84,10 @@ export class Project {
     
     getProjects() {
         return this.projects;
+    }
+
+    setProjects() {
+        this.projects = storage.getStorageItem('projects')
     }
     
 }

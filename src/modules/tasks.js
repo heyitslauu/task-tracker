@@ -16,6 +16,7 @@ export class Tasks {
             details: formObject.details,
             dueDate: formObject.dueDate,
             priorityLevel: formObject.priority,
+            done: false
         };
         this.tasks.push(newTask);
 
@@ -61,7 +62,12 @@ export class Tasks {
           }
     }
 
-
+    markCompleted(id) {
+        const index = this.tasks.findIndex((task) => task.id == id);
+        this.tasks[index].done = !this.tasks[index].done;
+        storage.setStorageItem('tasks', this.getTasks())
+        return this.getTasks();
+    }
     editTask(id) {
         const index = this.tasks.findIndex((task) => task.id == id);
 
@@ -88,5 +94,9 @@ export class Tasks {
     // Returns all the tasks in the array
     getTasks() {
         return this.tasks;
+    }
+
+    setTasks() {
+        this.tasks = storage.getStorageItem('tasks')
     }
 }
